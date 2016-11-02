@@ -1,0 +1,7 @@
+install:
+  - sudo apt-get install texlive-latex-recommended
+  - sudo tlmgr update --self --all
+script:
+  - latex test/gotoh_test.tex
+  - diff gotoh_test.dbg test/gotoh_test.txt
+
