@@ -1,8 +1,14 @@
+dist: trusty
+sudo: required
+before_install:
+  - wget https://raw.githubusercontent.com/y-yu/install-tex-travis/master/install-tex.sh
+  - wget https://raw.githubusercontent.com/y-yu/install-tex-travis/master/tlmgr.sh
+  - chmod +x install-tex.sh tlmgr.sh
 install:
-  - curl -L https://raw.githubusercontent.com/krlmlr/texlive-squashfs/master/out/texlive.tar.xz | tar xJC ~
-  - PATH=$HOME/texlive/bin/x86_64-linux:$PATH
+  - . ./install-tex.sh
+  - ./tlmgr.sh update --self --all
 script:
-  - echo $TRAVIS_OS_NAME
-  - latex test/gotoh_test.tex
-  - diff gotoh_test.dbg test/gotoh_test.txt
+  - latex test/gotoh_test.tex && diff gotoh_test.dbg test/gotoh_test.txt && rm -f *.dbg
+  - xelatex test/gotoh_test.tex && diff gotoh_test.dbg test/gotoh_test.txt && rm -f *.dbg
+  - lualatex test/gotoh_test.tex && diff gotoh_test.dbg test/gotoh_test.txt && rm -f *.dbg
 
