@@ -1,6 +1,8 @@
 install:
+  - echo "begining texlive installation"
   - sudo apt-get install texlive-latex-recommended
   - sudo tlmgr update --self --all
+  - echo "finish texlive installation"
 script:
   - latex test/gotoh_test.tex
   - diff gotoh_test.dbg test/gotoh_test.txt
