@@ -44,7 +44,8 @@
 
 %%%% default settings
 % algolithm parameters
-\edef\gth@min{-\number\@MM}
+\mathchardef\gth@M="7FFF
+\edef\gth@min{-\number\gth@M}
 \setkeys[gth]{config}{
   match=1, mismatch=-1, d=7, e=1,
   memoization=false}
