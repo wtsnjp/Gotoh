@@ -8,9 +8,6 @@
 \newwrite\dbgfile
 \immediate\openout\dbgfile=\jobname.dbg
 
-% disable \mbox
-\def\mbox#1{#1}
-
 % define \print
 \def\print#1{\immediate\write\dbgfile{#1}}
 

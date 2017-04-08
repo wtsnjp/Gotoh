@@ -41,6 +41,8 @@
 \define@boolkey[gth]{config}[@gth@]{memoization}{}
 % result cs
 \define@cmdkeys[gth]{config}[gth@]{score, resultA, resultB}
+% output
+\define@key[gth]{config}{gap char}{\def\gth@gap@char{#1}}
 
 %%%% default settings
 % algolithm parameters
@@ -52,6 +54,9 @@
 % result cs
 \setkeys[gth]{config}{
   score=\GotohScore, resultA=\GotohResultA, resultB=\GotohResultB}
+% output
+\setkeys[gth]{config}{
+  gap char={.}}
 
 %%%% utility commands
 \def\gth@name@edef#1{\expandafter\edef\csname #1\endcsname}
@@ -268,7 +273,7 @@
         \advance\gth@cnty\m@ne
         \expandafter\expandafter\expandafter
         \ifx\@nameuse{gth@seq2@\the\gth@cnty}\relax\else
-          \edef\gth@rseq@x{\mbox{-}\gth@rseq@x}%
+          \edef\gth@rseq@x{\gth@gap@char\gth@rseq@x}%
           \edef\gth@rseq@y{\@nameuse{gth@seq2@\the\gth@cnty}\gth@rseq@y}%
         \fi
       \else\ifnum\gth@cnty=\z@
@@ -276,7 +281,7 @@
         \expandafter\expandafter\expandafter
         \ifx\@nameuse{gth@seq1@\the\gth@cntx}\relax\else
           \edef\gth@rseq@x{\@nameuse{gth@seq1@\the\gth@cntx}\gth@rseq@x}%
-          \edef\gth@rseq@y{\mbox{-}\gth@rseq@y}%
+          \edef\gth@rseq@y{\gth@gap@char\gth@rseq@y}%
         \fi
       \else
         \if@gth@gapx@
@@ -285,7 +290,7 @@
           \expandafter\expandafter\expandafter
           \ifx\@nameuse{gth@seq1@\the\gth@cntx}\relax\else
             \edef\gth@rseq@x{\@nameuse{gth@seq1@\the\gth@cntx}\gth@rseq@x}%
-            \edef\gth@rseq@y{\mbox{-}\gth@rseq@y}%
+            \edef\gth@rseq@y{\gth@gap@char\gth@rseq@y}%
           \fi
           \gth@tempcnta\@nameuse{gth@\the\gth@num @m@\the\gth@cntx @\the\gth@cnty}%
           \gth@tempcntb\@nameuse{gth@\the\gth@num @ix@\the\gth@cntx @\the\gth@cnty}%
@@ -301,7 +306,7 @@
           \advance\gth@cnty\m@ne
           \expandafter\expandafter\expandafter
           \ifx\@nameuse{gth@seq2@\the\gth@cnty}\relax\else
-            \edef\gth@rseq@x{\mbox{-}\gth@rseq@x}%
+            \edef\gth@rseq@x{\gth@gap@char\gth@rseq@x}%
             \edef\gth@rseq@y{\@nameuse{gth@seq2@\the\gth@cnty}\gth@rseq@y}%
           \fi
           \gth@tempcnta\@nameuse{gth@\the\gth@num @m@\the\gth@cntx @\the\gth@cnty}%
