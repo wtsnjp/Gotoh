@@ -8,7 +8,7 @@ install:
   - . ./install-tex.sh
   - ./tlmgr.sh update --self --all
 script:
-  - latex test/gotoh_test.tex && diff gotoh_test.dbg test/gotoh_test.txt && rm -f *.dbg
-  - xelatex test/gotoh_test.tex && diff gotoh_test.dbg test/gotoh_test.txt && rm -f *.dbg
-  - lualatex test/gotoh_test.tex && diff gotoh_test.dbg test/gotoh_test.txt && rm -f *.dbg
+  - latex tests/algorithm.tex && diff algorithm.dbg tests/algorithm.txt && rm -f *.dbg
+  - xelatex tests/algorithm.tex && diff algorithm.dbg tests/algorithm.txt && rm -f *.dbg
+  - lualatex tests/algorithm.tex && diff algorithm.dbg tests/algorithm.txt && rm -f *.dbg
 
