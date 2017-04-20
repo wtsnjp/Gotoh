@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 TESTDIR=tests
 ENGINES=("latex" "xelatex" "lualatex")
