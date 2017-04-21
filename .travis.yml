@@ -8,4 +8,4 @@ install:
   - . ./install-tex.sh
   - ./tlmgr.sh update --self --all
 script:
-  - ./tests/run_test.sh
+  - ./tests/run_tests.sh

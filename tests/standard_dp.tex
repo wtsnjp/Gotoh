@@ -1,0 +1,70 @@
+\documentclass{article}
+
+%% preparation
+\usepackage{gotoh}
+
+% output file (*.dbg)
+\newwrite\dbgfile
+\immediate\openout\dbgfile=\jobname.dbg
+
+% define \print
+\def\print#1{\immediate\write\dbgfile{#1}}
+
+% define \GotohTest
+\newcommand{\GotohTest}[2]{%
+  \Gotoh{#1}{#2}%
+  \edef\tmpA{\GotohResultA}%
+  \edef\tmpB{\GotohResultB}%
+  \print\GotohScore
+  \print\tmpA
+  \print\tmpB}
+
+%% test: standard dp
+\GotohTest
+  {GGAGTGAGGGGAGCAGTTGGGCTGAAGATGGTCAACGCCGAGGGAACGGTAAAGGCGACG%
+   GAGCTGTGGCAGACCTGGCTTCCTAACCACGTCCCGTGTTTTGCGGCTCCGCGAGGACTG}
+  {CGCATGCGGAGTGAGGGGAGCAGTTGGGAACAGATGGTCCCGCCGAGGGACCGGTGGGCA%
+   GACGGGGCCAGCTGTGGCAGACACTGGCTTCTAACCACCGAACGTTCTTTCCGCTCCGGG}
+
+\GotohTest
+  {AAATT}
+  {AAAGGTT}
+
+\GotohTest
+  {GAATTCCGTTA}
+  {GGATCGA}
+
+\GotohTest
+  {ACCCGA}
+  {ACTA}
+
+\GotohTest
+  {AAAGGG}
+  {TTAAAAGGGGTT}
+
+\GotohTest
+  {ATCGGCGCAC}
+  {TTCCGCCCACA}
+
+\GotohTest
+  {ATCGGCGCACGGGGGA}
+  {TTCCGCCCACA}
+
+\GotohTest
+  {AAAATTCGGCGCACGGGGA}
+  {TTCCGCCCACG}
+
+\begin{document}
+
+%% test: print
+\begin{flushleft}
+\ttfamily
+
+\GotohScore
+
+\GotohResultA
+
+\GotohResultB
+\end{flushleft}
+
+\end{document}
