@@ -5,7 +5,7 @@ PWDF=`pwd`
 TESTDIR=$PWDF/tests
 TMPDIR=$PWDF/tmp
 
-ENGINES=("latex" "platex" "uplatex" "xelatex" "lualatex")
+ENGINES=("latex" "xelatex" "lualatex")
 TESTNAMES=("standard_dp" "memoization")
 
 mkdir $TMPDIR
