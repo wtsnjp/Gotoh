@@ -1,18 +1,94 @@
+% ^^A -*- latex -*-
+% \iffalse meta-comment
+% 
+% This is file 'gotoh.dtx'.
+% 
+% Copyright (c) 2017 Takuto ASAKURA (wtsnjp)
+%   GitHub:   https://github.com/wtsnjp
+%   Twitter:  @wtsnjp
+% 
+% This package is distributed under the MIT License.
+% 
+% \fi
 %
-% gotoh.sty
+% \CheckSum{0}
 %
-
-%%%% package declaration
+% \changes{v0.1}{2017/04/22}{Develop version}
+% 
+% \iffalse
+%<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{gotoh}[2016/11/02 dev]
-\def\gth@pkgname{gotoh}
+\ProvidesPackage{gotoh}[2017/04/22 v0.1]
+%</package>
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{gotoh}
+\EnableCrossrefs
+\RecordChanges
+\GetFileInfo{gotoh.sty}
+\CodelineNumbered
+\newcommand{\pkgName}[1]{\textsf{#1}}
+\newcommand{\pkgGotoh}{\pkgName{Gotoh}}
+\begin{document}
+\DocInput{gotoh.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \title{The {\pkgGotoh} package}
+% \author{Takuto ASAKURA (wtsnjp)}
+% \date{{\fileversion} [\filedate]}
+% \maketitle
+%
+% \MakeShortVerb{\|}
+%
+% ^^A\tableofcontents
+%
+% \begin{abstract}
+% Write it.
+% \end{abstract}
+%
+% \section{System Requirements}
+%
+% \section{Loading the {\pkgGotoh} Package}
+%
+% To use {\pkgGotoh} package, load |gotoh.sty| with |\usepackage| command in
+% preamble. No package option is available.
+% \begin{quote}
+% |\usepackage{gotoh}|
+% \end{quote}
+%
+% \section{Usage of \cs{Gotoh}}
+%
+% \section{Configuration}
+%
+% \StopEventually{}
+%
+% \section{Implementation}
+%
+% \subsection{Required package}
+%
+% |xkeyval| is required to process key-value lists.
+%    \begin{macrocode}
 \RequirePackage{xkeyval}
-
-%%%% error messages
+%    \end{macrocode}
+%
+% \subsection{Messages}
+%
+% \begin{macro}{\gth@info}
+% \begin{macro}{\gth@error}
+% Commands for info and error messages.
+%    \begin{macrocode}
+\def\gth@pkgname{gotoh}
 \def\gth@info{\PackageInfo\gth@pkgname}
 \def\gth@error{\PackageError\gth@pkgname}
-
-%%%% new ifs and new counts
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \subsection{Switches and Registers}
+%
+%    \begin{macrocode}
 \newif\if@gth@first@
 \newif\if@gth@remain@
 \newif\if@gth@gap@
@@ -31,34 +107,40 @@
 \newcount\gth@ix@return
 \newcount\gth@iy@return
 \newdimen\gth@tempdima
-
-%%%% initialize global number
+%    \end{macrocode}
+%
+% \subsection{Initialize Global Number}
+%
+%    \begin{macrocode}
 \gth@num\z@
-
-%%%% define keys
-% algolithm parameters
+%    \end{macrocode}
+%
+% \subsection{Define Keys}
+%
+%    \begin{macrocode}
 \define@cmdkeys[gth]{config}[gth@]{match, mismatch, d, e}
 \define@boolkey[gth]{config}[@gth@]{memoization}{}
-% result cs
 \define@cmdkeys[gth]{config}[gth@]{score, resultA, resultB}
-% output
 \define@key[gth]{config}{gap char}{\def\gth@gap@char{#1}}
-
-%%%% default settings
-% algolithm parameters
+%    \end{macrocode}
+%
+% \subsection{Default Settings}
+%
+%    \begin{macrocode}
 \mathchardef\gth@M="7FFF
 \edef\gth@min{-\number\gth@M}
 \setkeys[gth]{config}{
   match=1, mismatch=-1, d=7, e=1,
   memoization=false}
-% result cs
 \setkeys[gth]{config}{
   score=\GotohScore, resultA=\GotohResultA, resultB=\GotohResultB}
-% output
 \setkeys[gth]{config}{
   gap char={.}}
-
-%%%% utility commands
+%    \end{macrocode}
+%
+% \subsection{Utility Commands}
+%
+%    \begin{macrocode}
 \def\gth@name@edef#1{\expandafter\edef\csname #1\endcsname}
 \def\gth@name@xdef#1{\expandafter\xdef\csname #1\endcsname}
 \def\gth@glet{\global\let}
@@ -69,8 +151,11 @@
     \multiply\gth@tempdima 8%
     \mbox{\hbox to\gth@tempdima{\hss #1}}%
   \egroup}
-
-%%%% calc functions
+%    \end{macrocode}
+%
+% \subsection{Calc Functions}
+%
+%    \begin{macrocode}
 \def\gth@max#1{% #1: comma-separated list of values
   \bgroup
     \@gth@first@true
@@ -93,8 +178,10 @@
     \advance\gth@calc-\gth@d
     \global\gth@result\gth@calc
   \egroup}
-
-%%%% print matrix
+%    \end{macrocode}
+%
+% \subsection{Print Matrix}
+%    \begin{macrocode}
 \def\gth@print@matrix#1{%
   \bgroup\texttt
     #1:\gth@cr
@@ -106,8 +193,11 @@
       \advance\gth@tempcntb\@ne}\\
     \advance\gth@tempcnta\@ne}%
   \egroup}
-
-%%%% memoization functions
+%    \end{macrocode}
+%
+% \subsection{Memoization Functions}
+%
+%    \begin{macrocode}
 \def\gth@memo@ix#1#2{%
   \bgroup
     \gth@tempcnta#1\gth@tempcntb#2\relax
@@ -170,8 +260,10 @@
       \global\gth@m@return\@nameuse{gth@\the\gth@num @m@\the\gth@tempcnta @\the\gth@tempcntb}%
     \fi
   \egroup}
-
-%%%% execute alignment
+%    \end{macrocode}
+%
+% \subsection{execute alignment}
+%    \begin{macrocode}
 \newcommand{\Gotoh}[2]{\gth@gotoh{#1}{#2}}
 \def\gth@gotoh#1#2{% #1: seq1, #2: seq2
   \advance\gth@num\@ne
@@ -349,8 +441,16 @@
     \expandafter\gth@glet\gth@resultA\gth@rseq@x
     \expandafter\gth@glet\gth@resultB\gth@rseq@y
   \egroup}
-
-%%%% config command
+%    \end{macrocode}
+%
+% \subsection{Config Command}
+%    \begin{macrocode}
 \newcommand{\GotohConfig}[1]{\setkeys[gth]{config}{#1}}
-
-%% EOF
+%    \end{macrocode}
+%
+% \PrintChanges
+%
+% \Finale \PrintChanges
+%
+\endinput
+% EOF

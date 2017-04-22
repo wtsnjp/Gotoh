@@ -161,3 +161,9 @@ TSWLatexianTemp*
 # debug file
 *.dbg
 
+# rc file
+.latexmkrc
+
+# dirs
+out/
+tmp/

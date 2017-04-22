@@ -1,5 +1,6 @@
 #!/bin/bash
 
+PACKAGE=gotoh
 PWDF=`pwd`
 
 TESTDIR=$PWDF/tests
@@ -9,8 +10,8 @@ ENGINES=("latex" "xelatex" "lualatex")
 TESTNAMES=("standard_dp" "memoization")
 
 mkdir $TMPDIR
-cp *.sty $TMPDIR
 cd $TMPDIR
+latex $PWDF/$PACKAGE.ins
 
 for t in ${TESTNAMES[@]}; do
   for e in ${ENGINES[@]}; do
