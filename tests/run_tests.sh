@@ -10,8 +10,9 @@ ENGINES=("latex" "xelatex" "lualatex")
 TESTNAMES=("standard_dp" "memoization")
 
 mkdir $TMPDIR
+cp $PACKAGE.{dtx,ins} $TMPDIR
 cd $TMPDIR
-latex $PWDF/$PACKAGE.ins
+latex $PACKAGE.ins
 
 for t in ${TESTNAMES[@]}; do
   for e in ${ENGINES[@]}; do
