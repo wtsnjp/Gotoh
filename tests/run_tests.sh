@@ -20,9 +20,11 @@ for t in ${TESTNAMES[@]}; do
     if [ $? = 0 ]; then
       rm -rf $TMPDIR/$t.*
     else
+      echo "* test failed"
       exit 1
     fi
   done
 done
 
+echo "* successfully completed"
 rm -rf $TMPDIR
