@@ -84,8 +84,9 @@
 % The command puts the optimal score of alignment to specified control sequence
 % (default: |\GotohScore|) after executing the Gotoh algorithm, and returns the
 % alignment results to other control sequences (default: |\GotohResultA| and
-% |\GotohResultB|). These control sequences to store the score and results can
-% be changed with |\GotohConfig| command.
+% |\GotohResultB|). Note that these assignments are done globally. The control
+% sequences to store the score and results can be changed with |\GotohConfig|
+% command.
 %
 % \section{Configuration}
 %
@@ -107,27 +108,55 @@
 %
 % \begin{description}
 % \item[\synKey{score} |=| \meta{control sequence}]\hfill |\GotohScore| \\
-%   foo
-% \item[\synKey{result A} |=| \meta{control sequence}]\hfill |\GotohResultA| \\
-%   bar
+%   sets the control sequence to store optimal score of the last alignment
+%   which calculated by |\Gotoh| command.
+% \item[\synKey{result A} |=| \meta{control sequence}]\hfill |\GotohResultA|
 % \item[\synKey{result B} |=| \meta{control sequence}]\hfill |\GotohResultB| \\
-%   baz
+%   specify the control sequences to store alignment results respectively
+%   corresponding to \meta{sequence A} and \meta{sequence B} of |\Gotoh|.
 % \end{description}
 %
 % \subsection{Algorithm Parameters}
 %
+% The default value of algorithm parameters which define the scoring are
+% \[
+% \mathrm{match} = 1,\; \mathrm{mismatch} = -1,\; g(n) = -d - (n-1)e.
+% \]
+% Parameters $\mathrm{match}, \mathrm{mismatch}$ define the penalties of a
+% \emph{match} and \emph{mismatch} respectively, and function $g(n)$ defines a
+% \emph{gap} penalty depending on $n$ which is the length of the
+% gap.\footnote{This form of gap penalty is called `Affine gaps'.} The
+% parameters appeared in the above equation are able to be changed with
+% following keys:
+%
+% \begin{description}
+% \item[\synKey{match} |=| \meta{number}]\hfill |1|
+% \item[\synKey{mismatch} |=| \meta{number}]\hfill |-1|
+% \item[\synKey{d} |=| \meta{number}]\hfill |7|
+% \item[\synKey{e} |=| \meta{number}]\hfill |1| \\
+%   set the parameters appear in the above equation.
+% \end{description}
+%
+% Though the |\Gotoh| command calculates sequence alignment with standard
+% dynamic programming as default, you can use memoization functions instead.
+% Note that both of the methods produce exactly the same results.
+%
 % \begin{description}
 % \item[\synKey{memoization} |=| \synBool \synOr \synKey{memoization}]\hfill |false| \\
-%   bar
+%   If true, use memoization functions to execute the Gotoh algorithm. 
 % \end{description}
 %
 % \subsection{Others}
 %
 % \begin{description}
-% \item[\synKey{gap char} |=| \meta{commands}]\hfill |.| (period) \\
-%   foo
+% \item[\synKey{gap char} |=| \meta{character}]\hfill |.| (period) \\
+%   is inserted to the alignment results where gaps appear. Note that you have
+%   to be careful to use |-| (hyphen) as gap character because successive
+%   hyphens automatically converted to dashes by {\TeX}. In this case, you can
+%   specify |\mbox{-}|.
 % \item[\synKey{uppercase} |=| \synBool \synOr \synKey{uppercase}]\hfill |false| \\
-%   bar
+%   If true, uppercase both \meta{sequence A} and \meta{sequence B} before
+%   executing the algorithm.
 % \end{description}
 %
 % \StopEventually{}
@@ -169,18 +198,11 @@
 \newcount\gth@cntx
 \newcount\gth@cnty
 \newcount\gth@calc
-\newcount\gth@result
-\newcount\gth@num
 \newcount\gth@m@return
 \newcount\gth@ix@return
 \newcount\gth@iy@return
 \newdimen\gth@tempdima
-%    \end{macrocode}
-%
-% \subsection{Initialize Global Number}
-%
-%    \begin{macrocode}
-\gth@num\z@
+\edef\gth@sid{\number\z@}
 %    \end{macrocode}
 %
 % \subsection{Define Keys}
@@ -227,27 +249,21 @@
 %
 %    \begin{macrocode}
 \def\gth@max#1{% #1: comma-separated list of values
-  \bgroup
-    \@gth@first@true
-    \@for\gth@member:=#1\do{%
-      \if@gth@first@
+  \@gth@first@true
+  \@for\gth@member:=#1\do{%
+    \if@gth@first@
+      \gth@calc\gth@member
+      \@gth@first@false
+    \else
+      \ifnum\gth@member>\gth@calc
         \gth@calc\gth@member
-        \@gth@first@false
-      \else
-        \ifnum\gth@member>\gth@calc
-          \gth@calc\gth@member
-        \fi
-      \fi}%
-    \global\gth@result\gth@calc
-  \egroup}
+      \fi
+    \fi}}
 \def\gth@gap@penalty#1{% #1: gap length (n)
-  \bgroup
-    \gth@calc#1\relax
-    \advance\gth@calc\m@ne
-    \multiply\gth@calc-\gth@e
-    \advance\gth@calc-\gth@d
-    \global\gth@result\gth@calc
-  \egroup}
+  \gth@calc#1\relax
+  \advance\gth@calc\m@ne
+  \multiply\gth@calc-\gth@e
+  \advance\gth@calc-\gth@d}
 %    \end{macrocode}
 %
 % \subsection{Print Matrix}
@@ -260,7 +276,7 @@
       \gth@tempcntb\z@
       \@whilenum\gth@tempcntb<\gth@cnty\do{%
         \gth@tab{%
-          \@nameuse{gth@\the\gth@num @#1@\the\gth@tempcnta
+          \@nameuse{gth@\gth@sid @#1@\the\gth@tempcnta
                     @\the\gth@tempcntb}}%
       \advance\gth@tempcntb\@ne}\\
     \advance\gth@tempcnta\@ne}%
@@ -274,7 +290,7 @@
   \bgroup
     \gth@tempcnta#1\gth@tempcntb#2\relax
     \expandafter\expandafter\expandafter
-    \ifx\@nameuse{gth@\the\gth@num @ix@\the\gth@tempcnta
+    \ifx\@nameuse{gth@\gth@sid @ix@\the\gth@tempcnta
                   @\the\gth@tempcntb}\relax
       \advance\gth@tempcnta\m@ne
         \gth@memo@ix{\gth@tempcnta}{\gth@tempcntb}%
@@ -288,13 +304,13 @@
       \advance\gth@ix@return-\gth@e
       \advance\gth@iy@return-\gth@d
       \gth@max{\gth@m@return,\gth@ix@return,\gth@iy@return}%
-      \gth@name@xdef{gth@\the\gth@num @ix@\the\gth@tempcnta
+      \gth@name@xdef{gth@\gth@sid @ix@\the\gth@tempcnta
                      @\the\gth@tempcntb}{%
-        \the\gth@result}%
-      \global\gth@ix@return\gth@result
+        \the\gth@calc}%
+      \global\gth@ix@return\gth@calc
     \else
       \global\gth@ix@return
-        \@nameuse{gth@\the\gth@num @ix@\the\gth@tempcnta
+        \@nameuse{gth@\gth@sid @ix@\the\gth@tempcnta
                   @\the\gth@tempcntb}%
     \fi
   \egroup}
@@ -302,7 +318,7 @@
   \bgroup
     \gth@tempcnta#1\gth@tempcntb#2\relax
     \expandafter\expandafter\expandafter
-    \ifx\@nameuse{gth@\the\gth@num @iy@\the\gth@tempcnta
+    \ifx\@nameuse{gth@\gth@sid @iy@\the\gth@tempcnta
                   @\the\gth@tempcntb}\relax
       \advance\gth@tempcntb\m@ne
         \gth@memo@iy{\gth@tempcnta}{\gth@tempcntb}%
@@ -312,13 +328,13 @@
       \gth@iy@return\gth@temp@iy@return
       \advance\gth@m@return-\gth@d\advance\gth@iy@return-\gth@e
       \gth@max{\gth@m@return,\gth@iy@return}%
-      \gth@name@xdef{gth@\the\gth@num @iy@\the\gth@tempcnta
+      \gth@name@xdef{gth@\gth@sid @iy@\the\gth@tempcnta
                      @\the\gth@tempcntb}{%
-        \the\gth@result}%
-      \global\gth@iy@return\gth@result
+        \the\gth@calc}%
+      \global\gth@iy@return\gth@calc
     \else
       \global\gth@iy@return
-        \@nameuse{gth@\the\gth@num @iy@\the\gth@tempcnta
+        \@nameuse{gth@\gth@sid @iy@\the\gth@tempcnta
                   @\the\gth@tempcntb}%
     \fi
   \egroup}
@@ -326,7 +342,7 @@
   \bgroup
     \gth@tempcnta#1\gth@tempcntb#2\relax
     \expandafter\expandafter\expandafter
-    \ifx\@nameuse{gth@\the\gth@num @m@\the\gth@tempcnta
+    \ifx\@nameuse{gth@\gth@sid @m@\the\gth@tempcnta
                   @\the\gth@tempcntb}\relax
       \advance\gth@tempcnta\m@ne\advance\gth@tempcntb\m@ne
         \gth@memo@ix{\gth@tempcnta}{\gth@tempcntb}%
@@ -340,17 +356,17 @@
       \gth@ix@return\gth@temp@ix@return\gth@iy@return\gth@temp@iy@return
       \gth@max{\gth@m@return,\gth@ix@return,\gth@iy@return}%
       \ifx\gth@tmpa\gth@tmpb
-        \advance\gth@result\gth@match
+        \advance\gth@calc\gth@match
       \else
-        \advance\gth@result\gth@mismatch
+        \advance\gth@calc\gth@mismatch
       \fi
-      \gth@name@xdef{gth@\the\gth@num @m@\the\gth@tempcnta
+      \gth@name@xdef{gth@\gth@sid @m@\the\gth@tempcnta
                      @\the\gth@tempcntb}{%
-        \the\gth@result}%
-      \global\gth@m@return\gth@result
+        \the\gth@calc}%
+      \global\gth@m@return\gth@calc
     \else
       \global\gth@m@return
-        \@nameuse{gth@\the\gth@num @m@\the\gth@tempcnta
+        \@nameuse{gth@\gth@sid @m@\the\gth@tempcnta
                   @\the\gth@tempcntb}%
     \fi
   \egroup}
@@ -365,7 +381,8 @@
     \gth@gotoh{#1}{#2}%
   \fi}
 \def\gth@gotoh#1#2{% #1: seq1, #2: seq2
-  \advance\gth@num\@ne
+  \gth@tempcnta\gth@sid \advance\gth@tempcnta\@ne
+  \edef\gth@sid{\the\gth@tempcnta}%
   \bgroup
     %% get sequences
     \gth@tempcnta\z@
@@ -384,24 +401,24 @@
     \gth@tempcnta\z@
     \@whilenum\gth@tempcnta<\gth@cntx\do{%
       \gth@gap@penalty{\gth@tempcnta}%
-      \gth@name@xdef{gth@\the\gth@num @m@\the\gth@tempcnta
+      \gth@name@xdef{gth@\gth@sid @m@\the\gth@tempcnta
                      @\number\z@}{\gth@min}%
-      \gth@name@xdef{gth@\the\gth@num @ix@\the\gth@tempcnta
-                     @\number\z@}{\the\gth@result}%
-      \gth@name@xdef{gth@\the\gth@num @iy@\the\gth@tempcnta
+      \gth@name@xdef{gth@\gth@sid @ix@\the\gth@tempcnta
+                     @\number\z@}{\the\gth@calc}%
+      \gth@name@xdef{gth@\gth@sid @iy@\the\gth@tempcnta
                      @\number\z@}{\gth@min}%
       \advance\gth@tempcnta\@ne}%
     \gth@tempcntb\z@
     \@whilenum\gth@tempcntb<\gth@cnty\do{%
       \gth@gap@penalty{\gth@tempcntb}%
-      \gth@name@xdef{gth@\the\gth@num @m@\number\z@
+      \gth@name@xdef{gth@\gth@sid @m@\number\z@
                      @\the\gth@tempcntb}{\gth@min}%
-      \gth@name@xdef{gth@\the\gth@num @ix@\number\z@
+      \gth@name@xdef{gth@\gth@sid @ix@\number\z@
                      @\the\gth@tempcntb}{\gth@min}%
-      \gth@name@xdef{gth@\the\gth@num @iy@\number\z@
-                     @\the\gth@tempcntb}{\the\gth@result}%
+      \gth@name@xdef{gth@\gth@sid @iy@\number\z@
+                     @\the\gth@tempcntb}{\the\gth@calc}%
       \advance\gth@tempcntb\@ne}%
-    \gth@name@xdef{gth@\the\gth@num @m@\number\z@
+    \gth@name@xdef{gth@\gth@sid @m@\number\z@
                    @\number\z@}{\number\z@}%
     %% fill matrix
     \if@gth@memoization
@@ -420,54 +437,54 @@
           % ix
           \advance\gth@tempcnta\m@ne
             \gth@max{%
-              \@nameuse{gth@\the\gth@num @m@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @m@\the\gth@tempcnta
                         @\the\gth@tempcntb},%
-              \@nameuse{gth@\the\gth@num @iy@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @iy@\the\gth@tempcnta
                         @\the\gth@tempcntb}}%
-            \gth@tempcntc\gth@result
+            \gth@tempcntc\gth@calc
             \gth@tempcntd
-              \@nameuse{gth@\the\gth@num @ix@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @ix@\the\gth@tempcnta
                         @\the\gth@tempcntb}%
             \advance\gth@tempcntc-\gth@d\advance\gth@tempcntd-\gth@e
           \advance\gth@tempcnta\@ne
           \gth@max{\gth@tempcntc,\gth@tempcntd}%
-          \gth@name@xdef{gth@\the\gth@num @ix@\the\gth@tempcnta
+          \gth@name@xdef{gth@\gth@sid @ix@\the\gth@tempcnta
                          @\the\gth@tempcntb}{%
-            \the\gth@result}%
+            \the\gth@calc}%
           % iy
           \advance\gth@tempcntb\m@ne
             \gth@tempcntc
-              \@nameuse{gth@\the\gth@num @m@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @m@\the\gth@tempcnta
                         @\the\gth@tempcntb}%
             \gth@tempcntd
-              \@nameuse{gth@\the\gth@num @iy@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @iy@\the\gth@tempcnta
                         @\the\gth@tempcntb}%
             \advance\gth@tempcntc-\gth@d\advance\gth@tempcntd-\gth@e
           \advance\gth@tempcntb\@ne
           \gth@max{\gth@tempcntc,\gth@tempcntd}%
-          \gth@name@xdef{gth@\the\gth@num @iy@\the\gth@tempcnta
+          \gth@name@xdef{gth@\gth@sid @iy@\the\gth@tempcnta
                          @\the\gth@tempcntb}{%
-            \the\gth@result}%
+            \the\gth@calc}%
           % m
           \advance\gth@tempcnta\m@ne\advance\gth@tempcntb\m@ne
             \gth@max{%
-              \@nameuse{gth@\the\gth@num @m@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @m@\the\gth@tempcnta
                         @\the\gth@tempcntb},%
-              \@nameuse{gth@\the\gth@num @ix@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @ix@\the\gth@tempcnta
                         @\the\gth@tempcntb},%
-              \@nameuse{gth@\the\gth@num @iy@\the\gth@tempcnta
+              \@nameuse{gth@\gth@sid @iy@\the\gth@tempcnta
                         @\the\gth@tempcntb}}%
             \edef\gth@tmpa{\@nameuse{gth@seq1@\the\gth@tempcnta}}%
             \edef\gth@tmpb{\@nameuse{gth@seq2@\the\gth@tempcntb}}%
           \advance\gth@tempcnta\@ne\advance\gth@tempcntb\@ne
           \ifx\gth@tmpa\gth@tmpb
-            \advance\gth@result\gth@match
+            \advance\gth@calc\gth@match
           \else
-            \advance\gth@result\gth@mismatch
+            \advance\gth@calc\gth@mismatch
           \fi
-          \gth@name@xdef{gth@\the\gth@num @m@\the\gth@tempcnta
+          \gth@name@xdef{gth@\gth@sid @m@\the\gth@tempcnta
                          @\the\gth@tempcntb}{%
-            \the\gth@result}%
+            \the\gth@calc}%
           \advance\gth@tempcntb\@ne}%
         \advance\gth@tempcnta\@ne}%
     \fi
@@ -479,7 +496,7 @@
     \bgroup
       \advance\gth@cntx\m@ne\advance\gth@cnty\m@ne
       \expandafter\xdef\gth@score{%
-        \@nameuse{gth@\the\gth@num @m@\the\gth@cntx @\the\gth@cnty}}%
+        \@nameuse{gth@\gth@sid @m@\the\gth@cntx @\the\gth@cnty}}%
     \egroup
     %% trace back
     \let\gth@rseq@x\@empty\let\gth@rseq@y\@empty\let\gth@mode@seq\@empty
@@ -511,11 +528,11 @@
                              \gth@rseq@x}%
             \edef\gth@rseq@y{\gth@gap@char\gth@rseq@y}%
           \fi
-          \gth@tempcnta\@nameuse{gth@\the\gth@num @m@\the\gth@cntx
+          \gth@tempcnta\@nameuse{gth@\gth@sid @m@\the\gth@cntx
                                  @\the\gth@cnty}%
-          \gth@tempcntb\@nameuse{gth@\the\gth@num @ix@\the\gth@cntx
+          \gth@tempcntb\@nameuse{gth@\gth@sid @ix@\the\gth@cntx
                                  @\the\gth@cnty}%
-          \gth@tempcntc\@nameuse{gth@\the\gth@num @iy@\the\gth@cntx
+          \gth@tempcntc\@nameuse{gth@\gth@sid @iy@\the\gth@cntx
                                  @\the\gth@cnty}%
           \advance\gth@tempcnta-\gth@d
           \advance\gth@tempcntb-\gth@e
@@ -534,9 +551,9 @@
             \edef\gth@rseq@y{\@nameuse{gth@seq2@\the\gth@cnty}%
                              \gth@rseq@y}%
           \fi
-          \gth@tempcnta\@nameuse{gth@\the\gth@num @m@\the\gth@cntx
+          \gth@tempcnta\@nameuse{gth@\gth@sid @m@\the\gth@cntx
                                  @\the\gth@cnty}%
-          \gth@tempcntb\@nameuse{gth@\the\gth@num @iy@\the\gth@cntx
+          \gth@tempcntb\@nameuse{gth@\gth@sid @iy@\the\gth@cntx
                                  @\the\gth@cnty}%
           \advance\gth@tempcnta-\gth@d\advance\gth@tempcntb-\gth@e
           \ifnum\gth@tempcnta>\gth@tempcntb
@@ -556,11 +573,11 @@
                                \gth@rseq@y}%
             \fi
           \fi
-          \gth@tempcnta\@nameuse{gth@\the\gth@num @m@\the\gth@cntx
+          \gth@tempcnta\@nameuse{gth@\gth@sid @m@\the\gth@cntx
                                  @\the\gth@cnty}%
-          \gth@tempcntb\@nameuse{gth@\the\gth@num @ix@\the\gth@cntx
+          \gth@tempcntb\@nameuse{gth@\gth@sid @ix@\the\gth@cntx
                                  @\the\gth@cnty}%
-          \gth@tempcntc\@nameuse{gth@\the\gth@num @iy@\the\gth@cntx
+          \gth@tempcntc\@nameuse{gth@\gth@sid @iy@\the\gth@cntx
                                  @\the\gth@cnty}%
           \@gth@gap@false
           \ifnum\gth@tempcnta<\gth@tempcntb\@gth@gap@true\fi
