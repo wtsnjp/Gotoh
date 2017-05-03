@@ -1,7 +1,7 @@
 % ^^A -*- latex -*-
 % \iffalse meta-comment
 % 
-% This is file 'gotoh.dtx'.
+% This is file `gotoh.dtx'.
 % 
 % Copyright (c) 2017 Takuto ASAKURA (wtsnjp)
 %   GitHub:   https://github.com/wtsnjp
@@ -11,7 +11,7 @@
 % 
 % \fi
 %
-% \CheckSum{0}
+% \CheckSum{971}
 %
 % \changes{v1.0}{2017/05/03}{The first version}
 % 
@@ -77,7 +77,7 @@
 %
 % \begin{abstract}
 % This package is an implementation in {\TeX} of the Gotoh algorithm, which
-% calculates biological sequence alignments. The package provides only two
+% calculates biological sequence alignments. The package provides only two user
 % commands: |\Gotoh| for executing the algorithm and |\GotohConfig| for setting
 % various parameters with a key-value list.
 % \end{abstract}
@@ -96,8 +96,8 @@
 %
 % \section{Loading the {\pkgGotoh} Package}
 %
-% To use {\pkgGotoh} package, load |gotoh.sty| with |\usepackage| command in
-% preamble. No package option is available.
+% To use the {\pkgGotoh} package, load |gotoh.sty| with |\usepackage| command
+% in preamble. No package option is available.
 % \begin{quote}
 % |\usepackage{gotoh}|
 % \end{quote}
@@ -141,7 +141,8 @@
 % \item[\synKey{result A} |=| \meta{control sequence}]\hfill |\GotohResultA|
 % \item[\synKey{result B} |=| \meta{control sequence}]\hfill |\GotohResultB| \\
 %   specify the control sequences to store alignment results respectively
-%   corresponding to \meta{sequence A} and \meta{sequence B} of |\Gotoh|.
+%   corresponding to \meta{sequence A} and \meta{sequence B} of the arguments
+%   of |\Gotoh|.
 % \end{description}
 %
 % \subsection{Algorithm Parameters}
@@ -178,9 +179,9 @@
 % \begin{description}
 % \item[\synKey{gap char} |=| \meta{character}]\hfill |.| (period) \\
 %   is inserted to the alignment results where gaps appear. Note that you have
-%   to be careful to use |-| (hyphen) as gap character because successive
+%   to be careful if using |-| (hyphen) as gap characters because successive
 %   hyphens automatically converted to dashes by {\TeX}. In this case, you can
-%   specify |\mbox{-}|.
+%   specify |\mbox{-}| instead.
 % \item[\synKey{uppercase} |=| \synBool \synOr \synKey{uppercase}]\hfill |false| \\
 %   If true, uppercase both \meta{sequence A} and \meta{sequence B} before
 %   executing the algorithm.
@@ -265,11 +266,11 @@
 %
 % \begin{macro}{\gth@min}
 % This macro stores a large negative \meta{number} which is used instead of
-% $-\infty$. Here |\gth@n| is a largest constant which can be defined by
+% $-\infty$. Here |\gth@M| is a largest constant which can be defined by
 % |\mathchardef| primitive (in traditional {\TeX} engine).
 %    \begin{macrocode}
-\mathchardef\gth@n="7FFF
-\edef\gth@min{-\number\gth@n}
+\mathchardef\gth@M="7FFF
+\edef\gth@min{-\number\gth@M}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -873,4 +874,4 @@
 % \Finale
 %
 \endinput
-% EOFfoo
+% EOF
