@@ -13,15 +13,16 @@
 %
 % \CheckSum{0}
 %
-% \changes{v1.0}{2017/04/22}{The first version}
+% \changes{v1.0}{2017/05/03}{The first version}
 % 
 % \iffalse
 %<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{gotoh}[2017/04/22 v1.0 Sequence alignment algorithm]
+\ProvidesPackage{gotoh}[2017/05/03 v1.0 Sequence alignment algorithm]
 %</package>
 %<*driver>
 \documentclass[draft]{ltxdoc}
+\usepackage{amsmath}
 \usepackage{enumitem}
 \usepackage{gotoh}
 \EnableCrossrefs
@@ -60,6 +61,12 @@
 %   Right brace   \}     Tilde         \~}
 %
 % \GetFileInfo{gotoh.sty}
+%
+% \DoNotIndex{%
+%   \@empty,\@ne,\\,\advance,\bgroup,\csname,\def,\do,\edef,\egroup,\else,%
+%   \endcsname,\expandafter,\fi,\global,\hbox,\hss,\ht,\let,\m@ne,\mbox,%
+%   \multiply,\newcommand,\newcount,\newdimen,\newif,\number,\PackageError,%
+%   \PackageWarningNoLine,\relax,\RequirePackage,\sbox,\texttt,\the,\xdef,\z@}
 %
 % \title{The {\pkgGotoh} package}
 % \author{Takuto ASAKURA (wtsnjp)}
@@ -450,7 +457,30 @@
 % \]
 % where $a_i$ and $b_j$ are chosen from a finite alphabet, e.g.~$\{\mathrm{A},
 % \mathrm{T}, \mathrm{G}, \mathrm{C}\}$. The command takes these sequences as
-% its arguments, and calculate the aligment of those in $O(mn)$ time.
+% its arguments, and calculate following recurrence formula\footnote{This
+% calculation is done in $O(mn)$ time.} to get optimal score of the algorithm:
+% \begin{equation}
+% M_{i+1, j+1}
+%   = \max\left\{M_{ij}, {I_x}_{ij}, {I_y}_{ij}\right\} + c_{a_ib_j}
+% \label{eq:m}
+% \end{equation}
+% where
+% \begin{align}
+% {I_x}_{i+1, j} &= \max\left\{ M_{ij}-d, {I_x}_{ij}-e, {I_y}_{ij}-d \right\},
+% \label{eq:ix} \\
+% {I_y}_{i, j+1} &= \max\left\{ M_{ij}-d, {I_y}_{ij}-e \right\},
+% \label{eq:iy}
+% \end{align}
+% and $c_{a_ib_j}$ is a score for a pair $(a_i, b_j)$, namely
+% \[
+% c_{a_ib_j} = \left\{
+%   \begin{array}{rll}
+%   1  & \text{if\enspace} a_i = b_j & \text{(match)} \\
+%   -1 & \text{otherwise} & \text{(mismatch)}. \\
+%   \end{array}
+% \right.
+% \]
+%
 %    \begin{macrocode}
 \def\gth@gotoh#1#2{%
 %    \end{macrocode}
@@ -491,6 +521,17 @@
 %
 % \subsubsection{Initialization}
 %
+% We have to be careful with initialization because many implementations of the
+% Gotoh algorithm have problems here.~\cite{flouri2015} Specifically, the
+% package initialzes the matrxes with following equations:
+% \begin{align*}
+% M_{i0} &= -\infty, M_{0j} = -\infty, M_{00} = 0, \\
+% {I_x}_{i0} &= -g(i), {I_x}_{0j} = -\infty, \\
+% {I_y}_{i0} &= -\infty, {I_y}_{0j} = -g(j).
+% \end{align*}
+% Note that function $g(l)$ is a gap penalty (shown in equation~(\ref{eq:gap}))
+% and can be calculated with the macro |\gth@gap@penalty|.
+%
 %    \begin{macrocode}
     \gth@tempcnta\z@
     \@whilenum\gth@tempcnta<\gth@m\do{%
@@ -524,13 +565,17 @@
 %
 % \subsubsection{Dynamic Programming}
 %
+% To fill matrxes $M$, $I_x$ and $I_y$ the package use the recurrence formula
+%
 %    \begin{macrocode}
     \else
       \gth@tempcnta\@ne
       \@whilenum\gth@tempcnta<\gth@m\do{%
         \gth@tempcntb\@ne
         \@whilenum\gth@tempcntb<\gth@n\do{%
-          % ix
+%    \end{macrocode}
+% First, $I_x$ is calculated with equation (\ref{eq:ix}).
+%    \begin{macrocode}
           \advance\gth@tempcnta\m@ne
             \gth@max{%
               \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
@@ -547,7 +592,9 @@
           \gth@name@xdef{\gth@sn @ix@\the\gth@tempcnta
                          @\the\gth@tempcntb}{%
             \the\gth@calc}%
-          % iy
+%    \end{macrocode}
+% Secondly, $I_y$ is calculated with equation (\ref{eq:iy}).
+%    \begin{macrocode}
           \advance\gth@tempcntb\m@ne
             \gth@tempcntc
               \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
@@ -561,7 +608,9 @@
           \gth@name@xdef{\gth@sn @iy@\the\gth@tempcnta
                          @\the\gth@tempcntb}{%
             \the\gth@calc}%
-          % m
+%    \end{macrocode}
+% Finally, $M$ is calculated with equation (\ref{eq:m}) and a loop is completed.
+%    \begin{macrocode}
           \advance\gth@tempcnta\m@ne\advance\gth@tempcntb\m@ne
             \gth@max{%
               \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
@@ -813,6 +862,9 @@
 % \end{macro}
 %
 % \begin{thebibliography}{9}
+% \bibitem{flouri2015}
+%   Flouri, Tom\'a\v s \textit{et al}., ``Are all global alignment
+%   algorithms and implementations correct?''. \textit{bioRxiv}, 031500, 2015.
 % \bibitem{gotoh1982}
 %   Gotoh, Osamu, ``An improved algorithm for matching biological sequences''.
 %   \textit{Journal of Molecular Biology} \textbf{162}(3), 705-708, 1982.
