@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/wtsnjp/Gotoh.svg?branch=master)](https://travis-ci.org/wtsnjp/Gotoh)
 
-This package calculates biological sequence alignment with the Gotoh algorithm. The package also provide the interface to control various settings including algorithm parameters.
+LaTeX package: An implementation of the Gotoh sequence alignment algorithm.
 
 ## System Requirements
 

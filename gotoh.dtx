@@ -13,12 +13,12 @@
 %
 % \CheckSum{971}
 %
-% \changes{v1.0}{2017/05/03}{The first version}
+% \changes{v1.0}{2017/05/05}{The first version}
 % 
 % \iffalse
 %<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{gotoh}[2017/05/03 v1.0 Sequence alignment algorithm]
+\ProvidesPackage{gotoh}[2017/05/05 v1.0 Sequence alignment algorithm]
 %</package>
 %<*driver>
 \documentclass[draft]{ltxdoc}
@@ -153,9 +153,9 @@
 % \label{eq:parameters}
 % \end{equation}
 % Parameters $\mathrm{match}, \mathrm{mismatch}$ define the penalties of a
-% \emph{match} and \emph{mismatch} respectively, and $d, e$ are used in gap
-% penalty (see section \ref{sect:calc}). The parameters appeared in the
-% above equations are able to be changed with following keys:
+% \emph{match} and \emph{mismatch} respectively, and $d, e$ are used in a gap
+% penalty (see section \ref{sect:calc}). The parameters appeared in the above
+% equations are able to be changed with following keys:
 %
 % \begin{description}
 % \item[\synKey{match} |=| \meta{number}]\hfill |1|
@@ -363,7 +363,7 @@
 %
 % \subsection{Calculation Routines}\label{sect:calc}
 %
-% Since these calculation routines (macros) are \emph{not fullexpandable}, all
+% Since these calculation routines (macros) are \emph{not} full expandable, all
 % commands defined here return the results by storing the value in the counter
 % register |\gth@calc|. This assignments are done locally.
 %
