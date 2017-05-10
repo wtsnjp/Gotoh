@@ -403,10 +403,10 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \subsection{Printing Matrixes}
+% \subsection{Printing Matrices}
 %
 % \begin{macro}{\gth@print@matrix}
-% This command shows the matrixes $M$, $I_x$ or $I_y$ (See
+% This command shows the matrices $M$, $I_x$ or $I_y$ (See
 % section~\ref{sect:algorithm}). The argument of this macro specifies which
 % matrix to show, so you can detect |m|, |ix|, or |iy|. However, this macro is
 % currently only for the author of this package to debug.
@@ -451,7 +451,7 @@
 % \end{macro}
 %
 % \begin{macro}{\gth@gotoh}
-% This macro actually executes the Gotoh algorithm.~\cite{gotoh1982} The input
+% This macro actually executes the Gotoh algorithm~\cite{gotoh1982}. The input
 % of the algorithm is two biological sequences
 % \[
 % A \defeq a_1a_2a_3\dots a_m,\eqsep B \defeq b_1b_2b_3\dots b_n
@@ -481,6 +481,9 @@
 %   \end{array}
 % \right.
 % \]
+% Note that the equations (\ref{eq:ix}) and (\ref{eq:iy}) have asymmetric form
+% because the order of inserting \emph{gaps} when alternating $A$ and $B$ does
+% not affect the optimal score.
 %
 %    \begin{macrocode}
 \def\gth@gotoh#1#2{%
@@ -523,7 +526,7 @@
 % \subsubsection{Initialization}
 %
 % We have to be careful with initialization because many implementations of the
-% Gotoh algorithm have problems here.~\cite{flouri2015} Specifically, the
+% Gotoh algorithm have problems here~\cite{flouri2015}. Specifically, the
 % package initialzes the matrxes with following equations:
 % \begin{align*}
 % M_{i0} &= -\infty, M_{0j} = -\infty, M_{00} = 0, \\
@@ -636,7 +639,7 @@
     \fi
 %    \end{macrocode}
 %
-% \subsubsection{Printing Matrixes}
+% \subsubsection{Printing Matrices}
 %
 % This is piece of code for debugging the package (so usually commented out).
 %
