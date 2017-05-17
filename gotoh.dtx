@@ -406,7 +406,7 @@
 % \subsection{Printing Matrices}
 %
 % \begin{macro}{\gth@print@matrix}
-% This command shows the matrices $M$, $I_x$ or $I_y$ (See
+% This command shows the matrices $M$, $I^x$ or $I^y$ (See
 % section~\ref{sect:algorithm}). The argument of this macro specifies which
 % matrix to show, so you can detect |m|, |ix|, or |iy|. However, this macro is
 % currently only for the author of this package to debug.
@@ -462,19 +462,19 @@
 % calculation is done in $O(mn)$ time.} to get optimal score of the algorithm:
 % \begin{equation}
 % M_{i+1, j+1}
-%   = \max\left\{M_{ij}, {I_x}_{ij}, {I_y}_{ij}\right\} + c_{a_ib_j}
+%   = \max\left\{M_{ij}, I^x_{ij}, I^y_{ij}\right\} + c_{ij}
 % \label{eq:m}
 % \end{equation}
 % where
 % \begin{align}
-% {I_x}_{i+1, j} &= \max\left\{ M_{ij}-d, {I_x}_{ij}-e, {I_y}_{ij}-d \right\},
+% I^x_{i+1, j} &= \max\left\{ M_{ij}-d, I^x_{ij}-e, I^y_{ij}-d \right\},
 % \label{eq:ix} \\
-% {I_y}_{i, j+1} &= \max\left\{ M_{ij}-d, {I_y}_{ij}-e \right\},
+% I^y_{i, j+1} &= \max\left\{ M_{ij}-d, I^y_{ij}-e \right\},
 % \label{eq:iy}
 % \end{align}
-% and $c_{a_ib_j}$ is a score for a pair $(a_i, b_j)$, namely
+% and $c_{ij}$ is a score for a pair $(a_i, b_j)$, namely
 % \[
-% c_{a_ib_j} = \left\{
+% c_{ij} = \left\{
 %   \begin{array}{rll}
 %   1  & \text{if\enspace} a_i = b_j & \text{(match)} \\
 %   -1 & \text{otherwise} & \text{(mismatch)}. \\
@@ -530,8 +530,8 @@
 % package initialzes the matrxes with following equations:
 % \begin{align*}
 % M_{i0} &= -\infty, M_{0j} = -\infty, M_{00} = 0, \\
-% {I_x}_{i0} &= -g(i), {I_x}_{0j} = -\infty, \\
-% {I_y}_{i0} &= -\infty, {I_y}_{0j} = -g(j).
+% I^x_{i0} &= -g(i), I^x_{0j} = -\infty, \\
+% I^y_{i0} &= -\infty, I^y_{0j} = -g(j).
 % \end{align*}
 % Note that function $g(l)$ is a gap penalty (shown in equation~(\ref{eq:gap}))
 % and can be calculated with the macro |\gth@gap@penalty|.
@@ -569,7 +569,7 @@
 %
 % \subsubsection{Dynamic Programming}
 %
-% To fill matrxes $M$, $I_x$ and $I_y$ the package use the recurrence formula
+% To fill matrxes $M$, $I^x$ and $I^y$ the package use the recurrence formula
 %
 %    \begin{macrocode}
     \else
@@ -578,7 +578,7 @@
         \gth@tempcntb\@ne
         \@whilenum\gth@tempcntb<\gth@n\do{%
 %    \end{macrocode}
-% First, $I_x$ is calculated with equation (\ref{eq:ix}).
+% First, $I^x$ is calculated with equation (\ref{eq:ix}).
 %    \begin{macrocode}
           \advance\gth@tempcnta\m@ne
             \gth@max{%
@@ -597,7 +597,7 @@
                          @\the\gth@tempcntb}{%
             \the\gth@calc}%
 %    \end{macrocode}
-% Secondly, $I_y$ is calculated with equation (\ref{eq:iy}).
+% Secondly, $I^y$ is calculated with equation (\ref{eq:iy}).
 %    \begin{macrocode}
           \advance\gth@tempcntb\m@ne
             \gth@tempcntc
@@ -770,7 +770,7 @@
 % \begin{macro}{\gth@memo@ix}
 % \begin{macro}{\gth@memo@iy}
 % \begin{macro}{\gth@memo@m}
-% These are memoization functions for calculating $I_x, I_y, M$ respectively.
+% These are memoization functions for calculating $I^x, I^y, M$ respectively.
 %    \begin{macrocode}
 \def\gth@memo@ix#1#2{%
   \bgroup
