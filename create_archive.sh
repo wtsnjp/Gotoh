@@ -15,6 +15,7 @@ echo "* Create $PACKAGE.zip"
 mkdir -p $TARGET && cp -r $PWDF/* $TARGET
 sed -i -e "/^\[!\[Build Status\]/d" $TARGET/README.md
 rm $TARGET/{create_archive.sh,*-e}
+mv $TARGET/out/*.pdf $TARGET
 rm -rf $TARGET/{out,tests}
 
 cd $TMPDIR && zip -r $PWDF/$PACKAGE.zip $PACKAGE
