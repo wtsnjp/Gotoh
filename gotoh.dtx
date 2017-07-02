@@ -11,14 +11,14 @@
 % 
 % \fi
 %
-% \CheckSum{971}
+% \CheckSum{987}
 %
 % \changes{v1.0}{2017/05/05}{The first version}
 % 
 % \iffalse
 %<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{gotoh}[2017/05/05 v1.0 Sequence alignment algorithm]
+\ProvidesPackage{gotoh}[2017/07/02 v1.1 Sequence alignment algorithm]
 %</package>
 %<*driver>
 \documentclass[draft]{ltxdoc}
@@ -107,14 +107,14 @@
 % \DescribeMacro{\Gotoh}
 % The |\Gotoh| command simply takes two sequences as its arguments.
 % \begin{quote}
-% |\Gotoh|\marg{sequence A}\marg{sequence B}
+% |\Gotoh|\oarg{key-value list}\marg{sequence A}\marg{sequence B}
 % \end{quote}
 % The command puts the optimal score of the alignment to specified control
 % sequence (default: |\GotohScore|) after executing the Gotoh algorithm, and
 % returns the alignment results to other control sequences (default:
 % |\GotohResultA| and |\GotohResultB|). Note that these assignments are done
-% globally. The control sequences to store the score and results can be changed
-% with |\GotohConfig| command.
+% globally. Using the optional argument, you can change the configuration
+% temporary with the same keys in |\GotohConfig| (see the next section).
 %
 % \section{Configuration}
 %
@@ -427,7 +427,7 @@
       \@whilenum\gth@tempcntb<\gth@n\do{%
         \gth@tab{%
           \gth@nameuse{\gth@sn @#1@\the\gth@tempcnta
-                    @\the\gth@tempcntb}}%
+                       @\the\gth@tempcntb}}%
       \advance\gth@tempcntb\@ne}\\
     \advance\gth@tempcnta\@ne}%
   \egroup}
@@ -437,17 +437,38 @@
 % \subsection{Executing the Gotoh Algorithm}\label{sect:algorithm}
 %
 % \begin{macro}{\Gotoh}
-% This is the user interface to execute the Gotoh algorithm.  If the boolean
-% switch |\if@gth@uppercase| is true, the arguments are processed by
-% |\uppercase| preamble before passing them to |\gth@gotoh| macro.
+% \changes{v1.1}{2017/07/02}{Add a new optional argument for changing
+% config temporary}
+% This is the user interface to execute the Gotoh algorithm.  First, the
+% `serial number' is incremented. The whole other process executed by this
+% macro contained in a group because a number of temporary macros are defined
+% during processing.
 %    \begin{macrocode}
-\newcommand{\Gotoh}[2]{%
-  \if@gth@uppercase
-    \uppercase{\gth@gotoh{#1}{#2}}%
-  \else
-    \gth@gotoh{#1}{#2}%
-  \fi}
+\newcommand{\Gotoh}{%
+  \gth@increment\gth@sn
+  \bgroup  % \egroup is in \gth@gotoh@pre
+  \@ifnextchar[{\gth@gotoh@setkeys}{\gth@gotoh@pre}}
 %    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\gth@gotoh@setkeys}
+% \begin{macro}{\gth@gotoh@pre}
+% These inner macros are for preparing: |\gth@gotoh@setkeys| process temporary
+% configuration specified with the optional argument of |\Gotoh|. In
+% |\gth@gotoh@pre|, if the boolean switch |\if@gth@uppercase| is true, the
+% arguments are processed by |\uppercase| preamble before passing them to
+% |\gth@gotoh| macro.
+%    \begin{macrocode}
+\def\gth@gotoh@setkeys[#1]{\setkeys[gth]{config}{#1}\gth@gotoh@pre}
+\def\gth@gotoh@pre#1#2{%
+  \edef\gth@tmpa{\noexpand\gth@gotoh{#1}{#2}}%
+  \if@gth@uppercase
+    \uppercase\expandafter{\gth@tmpa}%
+  \else
+    \gth@tmpa
+  \fi\egroup}
+%    \end{macrocode}
+% \end{macro}
 % \end{macro}
 %
 % \begin{macro}{\gth@gotoh}
@@ -485,20 +506,6 @@
 % because the order of inserting \emph{gaps} when alternating $A$ and $B$ does
 % not affect the optimal score.
 %
-%    \begin{macrocode}
-\def\gth@gotoh#1#2{%
-%    \end{macrocode}
-%
-% \subsubsection{Preparation}
-%
-% First, the `serial number' is incremented. The whole other part of this macro
-% contained in a group because a number of temporary macros are defined during
-% processing.
-%    \begin{macrocode}
-  \gth@increment\gth@sn
-  \bgroup
-%    \end{macrocode}
-%
 % \subsubsection{Getting sequences}
 %
 % \begin{macro}{\gth@m}
@@ -507,18 +514,19 @@
 % |\gth@seqa@|$a_i$ and |\gth@seqa@|$b_j$, and the lengthes of the sequences
 % $m, n$ are stored in |\gth@m| and |\gth@n| respectively.
 %    \begin{macrocode}
-    \gth@tempcnta\z@
-    \@tfor\gth@member:=#1\do{%
-      \gth@name@edef{seqa@\the\gth@tempcnta}{\gth@member}%
-      \advance\gth@tempcnta\@ne}%
-    \advance\gth@tempcnta\@ne
-    \edef\gth@m{\the\gth@tempcnta}%
-    \gth@tempcntb\z@
-    \@tfor\gth@member:=#2\do{%
-      \gth@name@edef{seqb@\the\gth@tempcntb}{\gth@member}%
-      \advance\gth@tempcntb\@ne}%
-    \advance\gth@tempcntb\@ne
-    \edef\gth@n{\the\gth@tempcntb}%
+\def\gth@gotoh#1#2{%
+  \gth@tempcnta\z@
+  \@tfor\gth@member:=#1\do{%
+    \gth@name@edef{seqa@\the\gth@tempcnta}{\gth@member}%
+    \advance\gth@tempcnta\@ne}%
+  \advance\gth@tempcnta\@ne
+  \edef\gth@m{\the\gth@tempcnta}%
+  \gth@tempcntb\z@
+  \@tfor\gth@member:=#2\do{%
+    \gth@name@edef{seqb@\the\gth@tempcntb}{\gth@member}%
+    \advance\gth@tempcntb\@ne}%
+  \advance\gth@tempcntb\@ne
+  \edef\gth@n{\the\gth@tempcntb}%
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -537,21 +545,21 @@
 % and can be calculated with the macro |\gth@gap@penalty|.
 %
 %    \begin{macrocode}
-    \gth@tempcnta\z@
-    \@whilenum\gth@tempcnta<\gth@m\do{%
-      \gth@gap@penalty{\gth@tempcnta}%
-      \gth@name@xdef{\gth@sn @m@\the\gth@tempcnta @0}{\gth@min}%
-      \gth@name@xdef{\gth@sn @ix@\the\gth@tempcnta @0}{\the\gth@calc}%
-      \gth@name@xdef{\gth@sn @iy@\the\gth@tempcnta @0}{\gth@min}%
-      \advance\gth@tempcnta\@ne}%
-    \gth@tempcntb\z@
-    \@whilenum\gth@tempcntb<\gth@n\do{%
-      \gth@gap@penalty{\gth@tempcntb}%
-      \gth@name@xdef{\gth@sn @m@0@\the\gth@tempcntb}{\gth@min}%
-      \gth@name@xdef{\gth@sn @ix@0@\the\gth@tempcntb}{\gth@min}%
-      \gth@name@xdef{\gth@sn @iy@0@\the\gth@tempcntb}{\the\gth@calc}%
-      \advance\gth@tempcntb\@ne}%
-    \gth@name@xdef{\gth@sn @m@0@0}{\number\z@}%
+  \gth@tempcnta\z@
+  \@whilenum\gth@tempcnta<\gth@m\do{%
+    \gth@gap@penalty{\gth@tempcnta}%
+    \gth@name@xdef{\gth@sn @m@\the\gth@tempcnta @0}{\gth@min}%
+    \gth@name@xdef{\gth@sn @ix@\the\gth@tempcnta @0}{\the\gth@calc}%
+    \gth@name@xdef{\gth@sn @iy@\the\gth@tempcnta @0}{\gth@min}%
+    \advance\gth@tempcnta\@ne}%
+  \gth@tempcntb\z@
+  \@whilenum\gth@tempcntb<\gth@n\do{%
+    \gth@gap@penalty{\gth@tempcntb}%
+    \gth@name@xdef{\gth@sn @m@0@\the\gth@tempcntb}{\gth@min}%
+    \gth@name@xdef{\gth@sn @ix@0@\the\gth@tempcntb}{\gth@min}%
+    \gth@name@xdef{\gth@sn @iy@0@\the\gth@tempcntb}{\the\gth@calc}%
+    \advance\gth@tempcntb\@ne}%
+  \gth@name@xdef{\gth@sn @m@0@0}{\number\z@}%
 %    \end{macrocode}
 %
 % \subsubsection{Memoization}
@@ -559,12 +567,12 @@
 % If the switch |\if@gth@memoization| is true, memoization functions (See
 % section~\ref{sect:memofunc}) are called recursively.
 %    \begin{macrocode}
-    \if@gth@memoization
-      \gth@decrement\gth@m \gth@decrement\gth@n
-        \gth@memo@ix{\gth@m}{\gth@n}%
-        \gth@memo@iy{\gth@m}{\gth@n}%
-        \gth@memo@m{\gth@m}{\gth@n}%
-      \gth@increment\gth@m \gth@increment\gth@n
+  \if@gth@memoization
+    \gth@decrement\gth@m \gth@decrement\gth@n
+      \gth@memo@ix{\gth@m}{\gth@n}%
+      \gth@memo@iy{\gth@m}{\gth@n}%
+      \gth@memo@m{\gth@m}{\gth@n}%
+    \gth@increment\gth@m \gth@increment\gth@n
 %    \end{macrocode}
 %
 % \subsubsection{Dynamic Programming}
@@ -572,71 +580,71 @@
 % To fill matrxes $M$, $I^x$ and $I^y$ the package use the recurrence formula
 %
 %    \begin{macrocode}
-    \else
-      \gth@tempcnta\@ne
-      \@whilenum\gth@tempcnta<\gth@m\do{%
-        \gth@tempcntb\@ne
-        \@whilenum\gth@tempcntb<\gth@n\do{%
+  \else
+    \gth@tempcnta\@ne
+    \@whilenum\gth@tempcnta<\gth@m\do{%
+      \gth@tempcntb\@ne
+      \@whilenum\gth@tempcntb<\gth@n\do{%
 %    \end{macrocode}
 % First, $I^x$ is calculated with equation (\ref{eq:ix}).
 %    \begin{macrocode}
-          \advance\gth@tempcnta\m@ne
-            \gth@max{%
-              \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
-                        @\the\gth@tempcntb},%
-              \gth@nameuse{\gth@sn @iy@\the\gth@tempcnta
-                        @\the\gth@tempcntb}}%
-            \gth@tempcntc\gth@calc
-            \gth@tempcntd
-              \gth@nameuse{\gth@sn @ix@\the\gth@tempcnta
-                        @\the\gth@tempcntb}%
-            \advance\gth@tempcntc-\gth@d\advance\gth@tempcntd-\gth@e
-          \advance\gth@tempcnta\@ne
-          \gth@max{\gth@tempcntc,\gth@tempcntd}%
-          \gth@name@xdef{\gth@sn @ix@\the\gth@tempcnta
-                         @\the\gth@tempcntb}{%
-            \the\gth@calc}%
+        \advance\gth@tempcnta\m@ne
+          \gth@max{%
+            \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
+                         @\the\gth@tempcntb},%
+            \gth@nameuse{\gth@sn @iy@\the\gth@tempcnta
+                         @\the\gth@tempcntb}}%
+          \gth@tempcntc\gth@calc
+          \gth@tempcntd
+            \gth@nameuse{\gth@sn @ix@\the\gth@tempcnta
+                         @\the\gth@tempcntb}%
+          \advance\gth@tempcntc-\gth@d\advance\gth@tempcntd-\gth@e
+        \advance\gth@tempcnta\@ne
+        \gth@max{\gth@tempcntc,\gth@tempcntd}%
+        \gth@name@xdef{\gth@sn @ix@\the\gth@tempcnta
+                       @\the\gth@tempcntb}{%
+          \the\gth@calc}%
 %    \end{macrocode}
 % Secondly, $I^y$ is calculated with equation (\ref{eq:iy}).
 %    \begin{macrocode}
-          \advance\gth@tempcntb\m@ne
-            \gth@tempcntc
-              \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
-                        @\the\gth@tempcntb}%
-            \gth@tempcntd
-              \gth@nameuse{\gth@sn @iy@\the\gth@tempcnta
-                        @\the\gth@tempcntb}%
-            \advance\gth@tempcntc-\gth@d\advance\gth@tempcntd-\gth@e
-          \advance\gth@tempcntb\@ne
-          \gth@max{\gth@tempcntc,\gth@tempcntd}%
-          \gth@name@xdef{\gth@sn @iy@\the\gth@tempcnta
-                         @\the\gth@tempcntb}{%
-            \the\gth@calc}%
+        \advance\gth@tempcntb\m@ne
+          \gth@tempcntc
+            \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
+                         @\the\gth@tempcntb}%
+          \gth@tempcntd
+            \gth@nameuse{\gth@sn @iy@\the\gth@tempcnta
+                         @\the\gth@tempcntb}%
+          \advance\gth@tempcntc-\gth@d\advance\gth@tempcntd-\gth@e
+        \advance\gth@tempcntb\@ne
+        \gth@max{\gth@tempcntc,\gth@tempcntd}%
+        \gth@name@xdef{\gth@sn @iy@\the\gth@tempcnta
+                       @\the\gth@tempcntb}{%
+          \the\gth@calc}%
 %    \end{macrocode}
 % Finally, $M$ is calculated with equation (\ref{eq:m}) and a loop is completed.
 %    \begin{macrocode}
-          \advance\gth@tempcnta\m@ne\advance\gth@tempcntb\m@ne
-            \gth@max{%
-              \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
-                        @\the\gth@tempcntb},%
-              \gth@nameuse{\gth@sn @ix@\the\gth@tempcnta
-                        @\the\gth@tempcntb},%
-              \gth@nameuse{\gth@sn @iy@\the\gth@tempcnta
-                        @\the\gth@tempcntb}}%
-            \edef\gth@tmpa{\gth@nameuse{seqa@\the\gth@tempcnta}}%
-            \edef\gth@tmpb{\gth@nameuse{seqb@\the\gth@tempcntb}}%
-          \advance\gth@tempcnta\@ne\advance\gth@tempcntb\@ne
-          \ifx\gth@tmpa\gth@tmpb
-            \advance\gth@calc\gth@match
-          \else
-            \advance\gth@calc\gth@mismatch
-          \fi
-          \gth@name@xdef{\gth@sn @m@\the\gth@tempcnta
-                         @\the\gth@tempcntb}{%
-            \the\gth@calc}%
-          \advance\gth@tempcntb\@ne}%
-        \advance\gth@tempcnta\@ne}%
-    \fi
+        \advance\gth@tempcnta\m@ne\advance\gth@tempcntb\m@ne
+          \gth@max{%
+            \gth@nameuse{\gth@sn @m@\the\gth@tempcnta
+                         @\the\gth@tempcntb},%
+            \gth@nameuse{\gth@sn @ix@\the\gth@tempcnta
+                         @\the\gth@tempcntb},%
+            \gth@nameuse{\gth@sn @iy@\the\gth@tempcnta
+                         @\the\gth@tempcntb}}%
+          \edef\gth@tmpa{\gth@nameuse{seqa@\the\gth@tempcnta}}%
+          \edef\gth@tmpb{\gth@nameuse{seqb@\the\gth@tempcntb}}%
+        \advance\gth@tempcnta\@ne\advance\gth@tempcntb\@ne
+        \ifx\gth@tmpa\gth@tmpb
+          \advance\gth@calc\gth@match
+        \else
+          \advance\gth@calc\gth@mismatch
+        \fi
+        \gth@name@xdef{\gth@sn @m@\the\gth@tempcnta
+                       @\the\gth@tempcntb}{%
+          \the\gth@calc}%
+        \advance\gth@tempcntb\@ne}%
+      \advance\gth@tempcnta\@ne}%
+  \fi
 %    \end{macrocode}
 %
 % \subsubsection{Printing Matrices}
@@ -644,9 +652,9 @@
 % This is piece of code for debugging the package (so usually commented out).
 %
 %    \begin{macrocode}
-    %\gth@print@matrix{m}%
-    %\gth@print@matrix{ix}%
-    %\gth@print@matrix{iy}%
+  %\gth@print@matrix{m}%
+  %\gth@print@matrix{ix}%
+  %\gth@print@matrix{iy}%
 %    \end{macrocode}
 %
 % \subsubsection{Returning the Optimal Score}
@@ -654,28 +662,38 @@
 % The calculated optimal score of the alignment stored here to the control
 % sequences which stored in |\gth@score|.
 %    \begin{macrocode}
-    \bgroup
-      \gth@decrement\gth@m \gth@decrement\gth@n
-      \expandafter\xdef\gth@score{%
-        \gth@nameuse{\gth@sn @m@\gth@m @\gth@n}}%
-    \egroup
+  \bgroup
+    \gth@decrement\gth@m \gth@decrement\gth@n
+    \expandafter\xdef\gth@score{%
+      \gth@nameuse{\gth@sn @m@\gth@m @\gth@n}}%
+  \egroup
 %    \end{macrocode}
 %
 % \subsubsection{Trace Back}
 %
 %    \begin{macrocode}
-    \let\gth@rseq@x\@empty\let\gth@rseq@y\@empty\let\gth@mode@seq\@empty
-    \@gth@remain@true\@gth@gapx@false\@gth@gapy@false
-    \@whilesw\if@gth@remain@\fi{%
-      \ifnum\gth@m=\z@
-        \gth@decrement\gth@n
-        \expandafter\expandafter\expandafter
-        \ifx\gth@nameuse{seqb@\gth@n}\relax\else
-          \edef\gth@rseq@x{\gth@gap@char\gth@rseq@x}%
-          \edef\gth@rseq@y{\gth@nameuse{seqb@\gth@n}%
-                           \gth@rseq@y}%
-        \fi
-      \else\ifnum\gth@n=\z@
+  \let\gth@rseq@x\@empty\let\gth@rseq@y\@empty\let\gth@mode@seq\@empty
+  \@gth@remain@true\@gth@gapx@false\@gth@gapy@false
+  \@whilesw\if@gth@remain@\fi{%
+    \ifnum\gth@m=\z@
+      \gth@decrement\gth@n
+      \expandafter\expandafter\expandafter
+      \ifx\gth@nameuse{seqb@\gth@n}\relax\else
+        \edef\gth@rseq@x{\gth@gap@char\gth@rseq@x}%
+        \edef\gth@rseq@y{\gth@nameuse{seqb@\gth@n}%
+                         \gth@rseq@y}%
+      \fi
+    \else\ifnum\gth@n=\z@
+      \gth@decrement\gth@m
+      \expandafter\expandafter\expandafter
+      \ifx\gth@nameuse{seqa@\gth@m}\relax\else
+        \edef\gth@rseq@x{\gth@nameuse{seqa@\gth@m}%
+                         \gth@rseq@x}%
+        \edef\gth@rseq@y{\gth@gap@char\gth@rseq@y}%
+      \fi
+    \else
+      \if@gth@gapx@
+        % mode: gap x
         \gth@decrement\gth@m
         \expandafter\expandafter\expandafter
         \ifx\gth@nameuse{seqa@\gth@m}\relax\else
@@ -683,74 +701,64 @@
                            \gth@rseq@x}%
           \edef\gth@rseq@y{\gth@gap@char\gth@rseq@y}%
         \fi
+        \gth@tempcnta\gth@nameuse{\gth@sn @m@\gth@m @\gth@n}%
+        \gth@tempcntb\gth@nameuse{\gth@sn @ix@\gth@m @\gth@n}%
+        \gth@tempcntc\gth@nameuse{\gth@sn @iy@\gth@m @\gth@n}%
+        \advance\gth@tempcnta-\gth@d
+        \advance\gth@tempcntb-\gth@e
+        \advance\gth@tempcntc-\gth@d
+        \ifnum\gth@tempcnta>\gth@tempcntb
+          \@gth@gapx@false
+        \else\ifnum\gth@tempcntb<\gth@tempcntc
+          \@gth@gapx@false\@gth@gapy@true
+        \fi\fi
+      \else\if@gth@gapy@
+        % mode: gap y
+        \gth@decrement\gth@n
+        \expandafter\expandafter\expandafter
+        \ifx\gth@nameuse{seqb@\gth@n}\relax\else
+          \edef\gth@rseq@x{\gth@gap@char\gth@rseq@x}%
+          \edef\gth@rseq@y{\gth@nameuse{seqb@\gth@n}%
+                           \gth@rseq@y}%
+        \fi
+        \gth@tempcnta\gth@nameuse{\gth@sn @m@\gth@m @\gth@n}%
+        \gth@tempcntb\gth@nameuse{\gth@sn @iy@\gth@m @\gth@n}%
+        \advance\gth@tempcnta-\gth@d\advance\gth@tempcntb-\gth@e
+        \ifnum\gth@tempcnta>\gth@tempcntb
+          \@gth@gapy@false
+        \fi
       \else
-        \if@gth@gapx@
-          % mode: gap x
-          \gth@decrement\gth@m
-          \expandafter\expandafter\expandafter
-          \ifx\gth@nameuse{seqa@\gth@m}\relax\else
-            \edef\gth@rseq@x{\gth@nameuse{seqa@\gth@m}%
-                             \gth@rseq@x}%
-            \edef\gth@rseq@y{\gth@gap@char\gth@rseq@y}%
-          \fi
-          \gth@tempcnta\gth@nameuse{\gth@sn @m@\gth@m @\gth@n}%
-          \gth@tempcntb\gth@nameuse{\gth@sn @ix@\gth@m @\gth@n}%
-          \gth@tempcntc\gth@nameuse{\gth@sn @iy@\gth@m @\gth@n}%
-          \advance\gth@tempcnta-\gth@d
-          \advance\gth@tempcntb-\gth@e
-          \advance\gth@tempcntc-\gth@d
-          \ifnum\gth@tempcnta>\gth@tempcntb
-            \@gth@gapx@false
-          \else\ifnum\gth@tempcntb<\gth@tempcntc
-            \@gth@gapx@false\@gth@gapy@true
-          \fi\fi
-        \else\if@gth@gapy@
-          % mode: gap y
-          \gth@decrement\gth@n
+        % mode: default
+        \gth@decrement\gth@m
+        \gth@decrement\gth@n
+        \expandafter\expandafter\expandafter
+        \ifx\gth@nameuse{seqa@\gth@m}\relax\else
           \expandafter\expandafter\expandafter
           \ifx\gth@nameuse{seqb@\gth@n}\relax\else
-            \edef\gth@rseq@x{\gth@gap@char\gth@rseq@x}%
+            \edef\gth@rseq@x{\gth@nameuse{seqa@\gth@m}%
+                             \gth@rseq@x}%
             \edef\gth@rseq@y{\gth@nameuse{seqb@\gth@n}%
                              \gth@rseq@y}%
           \fi
-          \gth@tempcnta\gth@nameuse{\gth@sn @m@\gth@m @\gth@n}%
-          \gth@tempcntb\gth@nameuse{\gth@sn @iy@\gth@m @\gth@n}%
-          \advance\gth@tempcnta-\gth@d\advance\gth@tempcntb-\gth@e
-          \ifnum\gth@tempcnta>\gth@tempcntb
-            \@gth@gapy@false
+        \fi
+        \gth@tempcnta\gth@nameuse{\gth@sn @m@\gth@m @\gth@n}%
+        \gth@tempcntb\gth@nameuse{\gth@sn @ix@\gth@m @\gth@n}%
+        \gth@tempcntc\gth@nameuse{\gth@sn @iy@\gth@m @\gth@n}%
+        \@gth@gap@false
+        \ifnum\gth@tempcnta<\gth@tempcntb\@gth@gap@true\fi
+        \ifnum\gth@tempcnta<\gth@tempcntc\@gth@gap@true\fi
+        \if@gth@gap@
+          \ifnum\gth@tempcntb>\gth@tempcntc
+            \@gth@gapx@true
+          \else
+            \@gth@gapy@true
           \fi
-        \else
-          % mode: default
-          \gth@decrement\gth@m
-          \gth@decrement\gth@n
-          \expandafter\expandafter\expandafter
-          \ifx\gth@nameuse{seqa@\gth@m}\relax\else
-            \expandafter\expandafter\expandafter
-            \ifx\gth@nameuse{seqb@\gth@n}\relax\else
-              \edef\gth@rseq@x{\gth@nameuse{seqa@\gth@m}%
-                               \gth@rseq@x}%
-              \edef\gth@rseq@y{\gth@nameuse{seqb@\gth@n}%
-                               \gth@rseq@y}%
-            \fi
-          \fi
-          \gth@tempcnta\gth@nameuse{\gth@sn @m@\gth@m @\gth@n}%
-          \gth@tempcntb\gth@nameuse{\gth@sn @ix@\gth@m @\gth@n}%
-          \gth@tempcntc\gth@nameuse{\gth@sn @iy@\gth@m @\gth@n}%
-          \@gth@gap@false
-          \ifnum\gth@tempcnta<\gth@tempcntb\@gth@gap@true\fi
-          \ifnum\gth@tempcnta<\gth@tempcntc\@gth@gap@true\fi
-          \if@gth@gap@
-            \ifnum\gth@tempcntb>\gth@tempcntc
-              \@gth@gapx@true
-            \else
-              \@gth@gapy@true
-            \fi
-          \fi
-        \fi\fi
+        \fi
       \fi\fi
-      \ifnum\gth@m<\@ne\ifnum\gth@n<\@ne
-        \@gth@remain@false
-      \fi\fi}%
+    \fi\fi
+    \ifnum\gth@m<\@ne\ifnum\gth@n<\@ne
+      \@gth@remain@false
+    \fi\fi}%
 %    \end{macrocode}
 %
 % \subsubsection{Returning Results}
@@ -759,9 +767,8 @@
 % |\gth@resq@y| are copied globally to the control sequences which stored in
 % |\gth@resulta| and |\gth@resultb|.
 %    \begin{macrocode}
-    \expandafter\gth@glet\gth@resulta\gth@rseq@x
-    \expandafter\gth@glet\gth@resultb\gth@rseq@y
-  \egroup}
+  \expandafter\gth@glet\gth@resulta\gth@rseq@x
+  \expandafter\gth@glet\gth@resultb\gth@rseq@y}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -777,7 +784,7 @@
     \gth@tempcnta#1\gth@tempcntb#2\relax
     \expandafter\expandafter\expandafter
     \ifx\gth@nameuse{\gth@sn @ix@\the\gth@tempcnta
-                  @\the\gth@tempcntb}\relax
+                     @\the\gth@tempcntb}\relax
       \advance\gth@tempcnta\m@ne
         \gth@memo@ix{\gth@tempcnta}{\gth@tempcntb}%
         \edef\gth@tmp@ix@return{\gth@ix@return}%
@@ -803,7 +810,7 @@
     \gth@tempcnta#1\gth@tempcntb#2\relax
     \expandafter\expandafter\expandafter
     \ifx\gth@nameuse{\gth@sn @iy@\the\gth@tempcnta
-                  @\the\gth@tempcntb}\relax
+                     @\the\gth@tempcntb}\relax
       \advance\gth@tempcntb\m@ne
         \gth@memo@iy{\gth@tempcnta}{\gth@tempcntb}%
         \edef\gth@tmp@iy@return{\gth@iy@return}%
@@ -826,7 +833,7 @@
     \gth@tempcnta#1\gth@tempcntb#2\relax
     \expandafter\expandafter\expandafter
     \ifx\gth@nameuse{\gth@sn @m@\the\gth@tempcnta
-                  @\the\gth@tempcntb}\relax
+                     @\the\gth@tempcntb}\relax
       \advance\gth@tempcnta\m@ne\advance\gth@tempcntb\m@ne
         \gth@memo@ix{\gth@tempcnta}{\gth@tempcntb}%
         \edef\gth@tmp@ix@return{\gth@ix@return}%
