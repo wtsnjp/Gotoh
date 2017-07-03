@@ -7,7 +7,7 @@ TESTDIR=$PWDF/tests
 TMPDIR=$PWDF/tmp
 
 ENGINES=("latex" "xelatex" "lualatex")
-TESTNAMES=("standard_dp" "memoization")
+TESTNAMES=("config" "standard_dp" "memoization")
 
 mkdir $TMPDIR
 cp $PACKAGE.{dtx,ins} $TMPDIR

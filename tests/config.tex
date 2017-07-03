@@ -1,0 +1,76 @@
+\documentclass{article}
+
+%% preparation
+\usepackage{gotoh}
+
+% output file (*.dbg)
+\newwrite\dbgfile
+\immediate\openout\dbgfile=\jobname.dbg
+
+% define \print
+\def\print#1{\immediate\write\dbgfile{#1}}
+
+% define \GotohTest
+\newcommand{\GotohTest}[2]{%
+  \Gotoh{#1}{#2}%
+  \edef\tmpA{\GotohResultA}%
+  \edef\tmpB{\GotohResultB}%
+  \print\GotohScore
+  \print\tmpA
+  \print\tmpB}
+
+% define \GotohTestX
+\newcommand{\GotohTestX}[3]{%
+  \Gotoh[#1]{#2}{#3}%
+  \edef\tmpA{\GotohResultA}%
+  \edef\tmpB{\GotohResultB}%
+  \print\GotohScore
+  \print\tmpA
+  \print\tmpB}
+
+%% test: control sequences
+\bgroup
+  \GotohConfig{
+    score = \Score,
+    result A = \ResultA,
+    result B = \ResultB}
+  \Gotoh{ATGC}{AGTC}%
+  \edef\tmpA{\ResultA}%
+  \edef\tmpB{\ResultB}%
+  \print\Score
+  \print\tmpA
+  \print\tmpB
+\egroup
+
+%% test: parameters
+\bgroup
+  \GotohConfig{
+    match = 2,
+    mismatch = -3,
+    d = 7,
+    e = 5}
+  \GotohTest{GACCTA}{GAGA}
+\egroup
+
+%% test: uppercase
+\def\inputA{atgca}
+\def\inputB{atcca}
+\GotohTestX{uppercase}{\inputA}{\inputB}
+
+%% test: gap char
+\GotohTestX{gap char=!}{ATGCA}{ATCA}
+
+\begin{document}
+
+%% test: print
+\begin{flushleft}
+\ttfamily
+
+\GotohScore
+
+\GotohResultA
+
+\GotohResultB
+\end{flushleft}
+
+\end{document}
