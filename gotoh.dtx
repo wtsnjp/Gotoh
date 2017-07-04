@@ -288,7 +288,7 @@
 % \begin{macro}{\gth@d}
 % \begin{macro}{\gth@e}
 % These are keys for setting the parameters of the algorithm. The default
-% values which are shown in equations~(\ref{eq:parameters}) are set here, and
+% values which are shown in Equations~(\ref{eq:parameters}) are set here, and
 % stored in the macros (\emph{not} count registers) respectively.
 %    \begin{macrocode}
 \define@cmdkeys[gth]{config}[gth@]{match, mismatch, d, e}
@@ -393,7 +393,7 @@
 % g(l) = -d - (l-1)e. \label{eq:gap}
 % \end{equation}
 % In this equation, $d$ and $e$ are parameters of the algorithm, which have
-% default values shown in equations~(\ref{eq:parameters}).
+% default values shown in Equations~(\ref{eq:parameters}).
 %    \begin{macrocode}
 \def\gth@gap@penalty#1{%
   \gth@calc#1\relax
@@ -419,7 +419,7 @@
     \mbox{\hbox to\gth@tempdima{\hss #1}}%
   \egroup}
 \def\gth@print@matrix#1{%
-  \bgroup\texttt
+  \bgroup\ttfamily
     #1:\\
     \gth@tempcnta\z@
     \@whilenum\gth@tempcnta<\gth@m\do{%
@@ -502,7 +502,7 @@
 %   \end{array}
 % \right.
 % \]
-% Note that the equations (\ref{eq:ix}) and (\ref{eq:iy}) have asymmetric form
+% Note that the Equations (\ref{eq:ix}) and (\ref{eq:iy}) have asymmetric form
 % because the order of inserting \emph{gaps} when alternating $A$ and $B$ does
 % not affect the optimal score.
 %
@@ -541,7 +541,7 @@
 % I^x_{i0} &= -g(i), I^x_{0j} = -\infty, \\
 % I^y_{i0} &= -\infty, I^y_{0j} = -g(j).
 % \end{align*}
-% Note that function $g(l)$ is a gap penalty (shown in equation~(\ref{eq:gap}))
+% Note that function $g(l)$ is a gap penalty (shown in Equation~(\ref{eq:gap}))
 % and can be calculated with the macro |\gth@gap@penalty|.
 %
 %    \begin{macrocode}
@@ -586,7 +586,7 @@
       \gth@tempcntb\@ne
       \@whilenum\gth@tempcntb<\gth@n\do{%
 %    \end{macrocode}
-% First, $I^x$ is calculated with equation (\ref{eq:ix}).
+% First, $I^x$ is calculated with Equation (\ref{eq:ix}).
 %    \begin{macrocode}
         \advance\gth@tempcnta\m@ne
           \gth@max{%
@@ -605,7 +605,7 @@
                        @\the\gth@tempcntb}{%
           \the\gth@calc}%
 %    \end{macrocode}
-% Secondly, $I^y$ is calculated with equation (\ref{eq:iy}).
+% Secondly, $I^y$ is calculated with Equation (\ref{eq:iy}).
 %    \begin{macrocode}
         \advance\gth@tempcntb\m@ne
           \gth@tempcntc
@@ -621,7 +621,7 @@
                        @\the\gth@tempcntb}{%
           \the\gth@calc}%
 %    \end{macrocode}
-% Finally, $M$ is calculated with equation (\ref{eq:m}) and a loop is completed.
+% Finally, $M$ is calculated with Equation (\ref{eq:m}) and a loop is completed.
 %    \begin{macrocode}
         \advance\gth@tempcnta\m@ne\advance\gth@tempcntb\m@ne
           \gth@max{%
