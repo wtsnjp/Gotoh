@@ -565,7 +565,7 @@
 % \subsubsection{Memoization}
 %
 % If the switch |\if@gth@memoization| is true, memoization functions (See
-% section~\ref{sect:memofunc}) are called recursively.
+% section~\ref{sect:memofunc}) are called recursively. 
 %    \begin{macrocode}
   \if@gth@memoization
     \gth@decrement\gth@m \gth@decrement\gth@n
@@ -778,6 +778,9 @@
 % \begin{macro}{\gth@memo@iy}
 % \begin{macro}{\gth@memo@m}
 % These are memoization functions for calculating $I^x, I^y, M$ respectively.
+% Since these functions change many `temporary' values, all of the processes
+% are wrapped in a group and only the return values and components of matrices
+% are assigned globally.
 %    \begin{macrocode}
 \def\gth@memo@ix#1#2{%
   \bgroup
