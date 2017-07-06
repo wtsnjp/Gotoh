@@ -11,7 +11,7 @@
 % 
 % \fi
 %
-% \CheckSum{987}
+% \CheckSum{984}
 %
 % \changes{v1.0}{2017/05/05}{The first version}
 % 
@@ -577,7 +577,7 @@
 %
 % \subsubsection{Dynamic Programming}
 %
-% To fill matrxes $M$, $I^x$ and $I^y$ the package use the recurrence formula
+% To fill matrxes $M$, $I^x$, and $I^y$ the package use the recurrence formula
 %
 %    \begin{macrocode}
   \else
@@ -671,9 +671,30 @@
 %
 % \subsubsection{Trace Back}
 %
+% After processing dynamic programming (or memoization functions), matrices
+% $M$, $I^x$, and $I^y$ are all filled. Using these matrices, we can determine
+% the `trace' from the optimal score $M_{m,n}$ to the start $M_{0,0}$ and get
+% the result of alignment $(x, y)$.
+%
+% Considering the form of Equation (\ref{eq:m})--(\ref{eq:iy}), the calculation
+% formulae of the former values depend on which matrix the `current position'
+% exists. In order to take into account these differences, trace back process
+% is calculated while switching three modes: default, gap x, and gap y.
+%
+% First, make sure to empty |\gth@rseq@x| and |\gth@rseq@y| which is going to
+% store result alignment sequences $x$ and $y$ respectively. Note that this is
+% the trace \emph{back} process, so new characters are prepended to the
+% existing sequences in each loop. In the next line, the switches
+% |\if@gth@gapx@| and |\if@gth@gapy@| are both turned off (which means
+% processing starts from the default mode).
 %    \begin{macrocode}
-  \let\gth@rseq@x\@empty\let\gth@rseq@y\@empty\let\gth@mode@seq\@empty
+  \let\gth@rseq@x\@empty\let\gth@rseq@y\@empty
   \@gth@remain@true\@gth@gapx@false\@gth@gapy@false
+%    \end{macrocode}
+% In the main loop of trace back, process the condition either $x$ or $y$ is
+% already completed first. In this situation, the other sequence should be
+% filled all the remaining with \emph{gaps}.
+%    \begin{macrocode}
   \@whilesw\if@gth@remain@\fi{%
     \ifnum\gth@m=\z@
       \gth@decrement\gth@n
@@ -692,8 +713,14 @@
         \edef\gth@rseq@y{\gth@gap@char\gth@rseq@y}%
       \fi
     \else
+%    \end{macrocode}
+% \paragraph{mode: gap x}
+% Prepend former base to $x$ and a \emph{gap} to $y$. If
+% $M_{m-1,n}-d>I^x_{m-1,n}-e$ back to default mode. Else if
+% $I^x_{m-1,n}-e<I^y_{m-1,n}-d$ switch to mode gap y and otherwise stay in mode
+% gap x.
+%    \begin{macrocode}
       \if@gth@gapx@
-        % mode: gap x
         \gth@decrement\gth@m
         \expandafter\expandafter\expandafter
         \ifx\gth@nameuse{seqa@\gth@m}\relax\else
@@ -712,8 +739,13 @@
         \else\ifnum\gth@tempcntb<\gth@tempcntc
           \@gth@gapx@false\@gth@gapy@true
         \fi\fi
+%    \end{macrocode}
+% \paragraph{mode: gap y}
+% Prepend a \emph{gap} to $x$ and former base to $y$. If
+% $M_{m,n-1}-d>I^y_{m,n-1}-e$ back to default mode and otherwise stay in mode
+% gap y.
+%    \begin{macrocode}
       \else\if@gth@gapy@
-        % mode: gap y
         \gth@decrement\gth@n
         \expandafter\expandafter\expandafter
         \ifx\gth@nameuse{seqb@\gth@n}\relax\else
@@ -727,8 +759,14 @@
         \ifnum\gth@tempcnta>\gth@tempcntb
           \@gth@gapy@false
         \fi
+%    \end{macrocode}
+% \paragraph{mode: default}
+% Prepend former base to $x$ and $y$ respectively. Only if
+% $M_{m-1,n-1}>I^x_{m-1,n-1}$ and $M_{m-1,n-1}>I^y_{m-1,n-1}$ stay on default
+% mode, and else if $I^x_{m-1,n-1}>I^y_{n-1,m-1}$ go to gap x otherwise go to
+% gap y.
+%    \begin{macrocode}
       \else
-        % mode: default
         \gth@decrement\gth@m
         \gth@decrement\gth@n
         \expandafter\expandafter\expandafter
@@ -756,6 +794,9 @@
         \fi
       \fi\fi
     \fi\fi
+%    \end{macrocode}
+% Finally, if we achieve to $M_{0,0}$, exit from the main loop.
+%    \begin{macrocode}
     \ifnum\gth@m<\@ne\ifnum\gth@n<\@ne
       \@gth@remain@false
     \fi\fi}%
