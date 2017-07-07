@@ -18,7 +18,7 @@
 % \iffalse
 %<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{gotoh}[2017/07/02 v1.1 Sequence alignment algorithm]
+\ProvidesPackage{gotoh}[2017/07/07 v1.1 Sequence alignment algorithm]
 %</package>
 %<*driver>
 \documentclass[draft]{ltxdoc}
@@ -105,7 +105,7 @@
 % \section{Calculating the Alignment}
 %
 % \DescribeMacro{\Gotoh}
-% The |\Gotoh| command simply takes two sequences as its arguments.
+% The syntax of |\Gotoh| is shown below.
 % \begin{quote}
 % |\Gotoh|\oarg{key-value list}\marg{sequence A}\marg{sequence B}
 % \end{quote}
@@ -437,7 +437,7 @@
 % \subsection{Executing the Gotoh Algorithm}\label{sect:algorithm}
 %
 % \begin{macro}{\Gotoh}
-% \changes{v1.1}{2017/07/02}{Add a new optional argument for changing
+% \changes{v1.1}{2017/07/07}{Add a new optional argument for changing
 % config temporary}
 % This is the user interface to execute the Gotoh algorithm.  First, the
 % `serial number' is incremented. The whole other process executed by this

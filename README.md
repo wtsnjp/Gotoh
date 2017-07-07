@@ -1,4 +1,4 @@
-# Package Gotoh (v1.0)
+# Package Gotoh (v1.1)
 
 [![Build Status](https://travis-ci.org/wtsnjp/Gotoh.svg?branch=master)](https://travis-ci.org/wtsnjp/Gotoh)
 
